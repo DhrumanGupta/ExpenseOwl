@@ -241,6 +241,47 @@ func (s *databaseStore) GetAllExpenses() ([]Expense, error) {
 	return expenses, nil
 }
 
+func (s *databaseStore) GetExpensesByFilter(month, year int, date time.Time) ([]Expense, error) {
+	var query string
+	var args []interface{}
+
+	// Filter by specific date
+	if !date.IsZero() {
+		// Get start and end of the day
+		startOfDay := time.Date(date.Year(), date.Month(), date.Day(), 0, 0, 0, 0, date.Location())
+		endOfDay := time.Date(date.Year(), date.Month(), date.Day(), 23, 59, 59, 999999999, date.Location())
+
+		query = `SELECT id, recurring_id, name, category, amount, date, tags FROM expenses WHERE date >= $1 AND date <= $2 ORDER BY date DESC`
+		args = []interface{}{startOfDay, endOfDay}
+	} else if month > 0 && year > 0 {
+		// Filter by month and year
+		startOfMonth := time.Date(year, time.Month(month), 1, 0, 0, 0, 0, time.UTC)
+		endOfMonth := startOfMonth.AddDate(0, 1, 0).Add(-time.Nanosecond)
+
+		query = `SELECT id, recurring_id, name, category, amount, date, tags FROM expenses WHERE date >= $1 AND date <= $2 ORDER BY date DESC`
+		args = []interface{}{startOfMonth, endOfMonth}
+	} else {
+		// No filter, return empty result
+		return []Expense{}, nil
+	}
+
+	rows, err := s.db.Query(query, args...)
+	if err != nil {
+		return nil, fmt.Errorf("failed to query expenses: %v", err)
+	}
+	defer rows.Close()
+
+	var expenses []Expense
+	for rows.Next() {
+		expense, err := scanExpense(rows)
+		if err != nil {
+			return nil, fmt.Errorf("failed to scan expense: %v", err)
+		}
+		expenses = append(expenses, expense)
+	}
+	return expenses, nil
+}
+
 func (s *databaseStore) GetExpense(id string) (Expense, error) {
 	query := `SELECT id, recurring_id, name, category, amount, date, tags FROM expenses WHERE id = $1`
 	expense, err := scanExpense(s.db.QueryRow(query, id))

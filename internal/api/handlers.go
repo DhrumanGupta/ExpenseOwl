@@ -196,7 +196,54 @@ func (h *Handler) GetExpenses(w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, http.StatusMethodNotAllowed, ErrorResponse{Error: "Method not allowed"})
 		return
 	}
-	expenses, err := h.storage.GetAllExpenses()
+
+	// Parse query parameters for filtering
+	monthStr := r.URL.Query().Get("month")
+	yearStr := r.URL.Query().Get("year")
+	dateStr := r.URL.Query().Get("date")
+
+	// If no filters provided, return all expenses
+	if monthStr == "" && yearStr == "" && dateStr == "" {
+		expenses, err := h.storage.GetAllExpenses()
+		if err != nil {
+			writeJSON(w, http.StatusInternalServerError, ErrorResponse{Error: "Failed to retrieve expenses"})
+			log.Printf("API ERROR: Failed to retrieve expenses: %v\n", err)
+			return
+		}
+		writeJSON(w, http.StatusOK, expenses)
+		return
+	}
+
+	var month, year int
+	var date time.Time
+	var err error
+
+	// If date parameter is provided, it takes precedence
+	if dateStr != "" {
+		date, err = time.Parse("2006-01-02", dateStr)
+		if err != nil {
+			writeJSON(w, http.StatusBadRequest, ErrorResponse{Error: "Invalid date format. Use YYYY-MM-DD"})
+			return
+		}
+	} else if monthStr != "" && yearStr != "" {
+		// Parse month and year
+		month, err = strconv.Atoi(monthStr)
+		if err != nil || month < 1 || month > 12 {
+			writeJSON(w, http.StatusBadRequest, ErrorResponse{Error: "Invalid month. Must be between 1 and 12"})
+			return
+		}
+		year, err = strconv.Atoi(yearStr)
+		if err != nil || year < 1900 || year > 2100 {
+			writeJSON(w, http.StatusBadRequest, ErrorResponse{Error: "Invalid year. Must be between 1900 and 2100"})
+			return
+		}
+	} else {
+		// Either month or year is missing
+		writeJSON(w, http.StatusBadRequest, ErrorResponse{Error: "Both month and year parameters are required when filtering by month"})
+		return
+	}
+
+	expenses, err := h.storage.GetExpensesByFilter(month, year, date)
 	if err != nil {
 		writeJSON(w, http.StatusInternalServerError, ErrorResponse{Error: "Failed to retrieve expenses"})
 		log.Printf("API ERROR: Failed to retrieve expenses: %v\n", err)

@@ -339,6 +339,42 @@ func (s *jsonStore) GetAllExpenses() ([]Expense, error) {
 	return data.Expenses, nil
 }
 
+func (s *jsonStore) GetExpensesByFilter(month, year int, date time.Time) ([]Expense, error) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	data, err := s.readExpensesFile(s.filePath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read storage file: %v", err)
+	}
+
+	var filtered []Expense
+
+	// Filter by specific date
+	if !date.IsZero() {
+		// Get start and end of the day
+		startOfDay := time.Date(date.Year(), date.Month(), date.Day(), 0, 0, 0, 0, date.Location())
+		endOfDay := time.Date(date.Year(), date.Month(), date.Day(), 23, 59, 59, 999999999, date.Location())
+
+		for _, exp := range data.Expenses {
+			if !exp.Date.Before(startOfDay) && !exp.Date.After(endOfDay) {
+				filtered = append(filtered, exp)
+			}
+		}
+	} else if month > 0 && year > 0 {
+		// Filter by month and year
+		startOfMonth := time.Date(year, time.Month(month), 1, 0, 0, 0, 0, time.UTC)
+		endOfMonth := startOfMonth.AddDate(0, 1, 0).Add(-time.Nanosecond)
+
+		for _, exp := range data.Expenses {
+			if !exp.Date.Before(startOfMonth) && !exp.Date.After(endOfMonth) {
+				filtered = append(filtered, exp)
+			}
+		}
+	}
+
+	return filtered, nil
+}
+
 func (s *jsonStore) GetExpense(id string) (Expense, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()

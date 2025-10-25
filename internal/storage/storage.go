@@ -32,6 +32,7 @@ type Storage interface {
 
 	// Expenses
 	GetAllExpenses() ([]Expense, error)
+	GetExpensesByFilter(month, year int, date time.Time) ([]Expense, error)
 	GetExpense(id string) (Expense, error)
 	AddExpense(expense Expense) error
 	RemoveExpense(id string) error
