@@ -485,3 +485,35 @@ async function fetchAllExpenses(allTags) {
     throw error;
   }
 }
+
+async function fetchDailyExpenses(date, allTags) {
+  try {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    const dateStr = `${year}-${month}-${day}`;
+
+    const response = await fetch(`/expenses?date=${dateStr}`);
+    if (!response.ok) throw new Error("Failed to fetch daily expenses");
+    const data = await response.json();
+    const expenses = Array.isArray(data)
+      ? data
+      : data && Array.isArray(data.expenses)
+      ? data.expenses
+      : [];
+
+    if (allTags) {
+      allTags.clear();
+      expenses.forEach((exp) => {
+        if (exp.tags) {
+          exp.tags.forEach((tag) => allTags.add(tag));
+        }
+      });
+    }
+
+    return expenses;
+  } catch (error) {
+    console.error("Failed to fetch daily expenses:", error);
+    throw error;
+  }
+}

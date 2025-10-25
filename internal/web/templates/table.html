@@ -248,6 +248,17 @@
         }
       }
 
+      async function refreshCurrentDayExpenses() {
+        try {
+          allExpenses = await fetchDailyExpenses(currentDate, allTags);
+          updateTable();
+        } catch (error) {
+          console.error("Failed to refresh expenses for current date:", error);
+          document.getElementById("tableContainer").innerHTML =
+            '<div class="no-data">Failed to load expenses for this date</div>';
+        }
+      }
+
       function renderSelectedTags(tags) {
         const selectedContainer = document.getElementById("selected-tags");
         selectedContainer.innerHTML = "";
@@ -378,21 +389,8 @@
           currentCurrency = config.currency;
           startDate = config.startDate;
 
-          const response = await fetch("/expenses");
-          if (!response.ok) throw new Error("Failed to fetch data");
-          const data = await response.json();
-          allExpenses = Array.isArray(data)
-            ? data
-            : data && Array.isArray(data.expenses)
-            ? data.expenses
-            : [];
-
-          allTags.clear();
-          allExpenses.forEach((exp) => {
-            if (exp.tags) {
-              exp.tags.forEach((tag) => allTags.add(tag));
-            }
-          });
+          // Fetch daily expenses for the current date instead of all expenses
+          allExpenses = await fetchDailyExpenses(currentDate, allTags);
 
           updateMonthDisplay();
           updateTable();
@@ -414,19 +412,51 @@
 
       document
         .getElementById("showAllToggle")
-        .addEventListener("change", updateTable);
+        .addEventListener("change", async () => {
+          const showMonth = document.getElementById("showAllToggle").checked;
+          try {
+            if (showMonth) {
+              allExpenses = await fetchMonthExpenses(currentDate, allTags);
+            } else {
+              allExpenses = await fetchDailyExpenses(currentDate, allTags);
+            }
+            updateTable();
+          } catch (error) {
+            console.error("Failed to fetch expenses:", error);
+            document.getElementById("tableContainer").innerHTML =
+              '<div class="no-data">Failed to load expenses</div>';
+          }
+        });
 
-      document.getElementById("prevMonth").addEventListener("click", () => {
-        currentDate.setDate(currentDate.getDate() - 1);
-        updateMonthDisplay();
-        updateTable();
-      });
+      document
+        .getElementById("prevMonth")
+        .addEventListener("click", async () => {
+          currentDate.setDate(currentDate.getDate() - 1);
+          updateMonthDisplay();
+          try {
+            allExpenses = await fetchDailyExpenses(currentDate, allTags);
+            updateTable();
+          } catch (error) {
+            console.error("Failed to fetch expenses for new date:", error);
+            document.getElementById("tableContainer").innerHTML =
+              '<div class="no-data">Failed to load expenses for this date</div>';
+          }
+        });
 
-      document.getElementById("nextMonth").addEventListener("click", () => {
-        currentDate.setDate(currentDate.getDate() + 1);
-        updateMonthDisplay();
-        updateTable();
-      });
+      document
+        .getElementById("nextMonth")
+        .addEventListener("click", async () => {
+          currentDate.setDate(currentDate.getDate() + 1);
+          updateMonthDisplay();
+          try {
+            allExpenses = await fetchDailyExpenses(currentDate, allTags);
+            updateTable();
+          } catch (error) {
+            console.error("Failed to fetch expenses for new date:", error);
+            document.getElementById("tableContainer").innerHTML =
+              '<div class="no-data">Failed to load expenses for this date</div>';
+          }
+        });
 
       document
         .getElementById("calendarPickerBtn")
@@ -437,11 +467,18 @@
 
       document
         .getElementById("calendarPicker")
-        .addEventListener("change", (e) => {
+        .addEventListener("change", async (e) => {
           const selectedDate = new Date(e.target.value);
           currentDate = selectedDate;
           updateMonthDisplay();
-          updateTable();
+          try {
+            allExpenses = await fetchDailyExpenses(currentDate, allTags);
+            updateTable();
+          } catch (error) {
+            console.error("Failed to fetch expenses for selected date:", error);
+            document.getElementById("tableContainer").innerHTML =
+              '<div class="no-data">Failed to load expenses for this date</div>';
+          }
         });
 
       let expenseToDelete = null;
@@ -477,7 +514,7 @@
           if (!response.ok) {
             throw new Error("Failed to delete expense");
           }
-          await initialize();
+          await refreshCurrentDayExpenses();
           closeDeleteModal();
         } catch (error) {
           console.error("Error deleting expense:", error);
@@ -531,7 +568,7 @@
               delete form.dataset.editId;
               form.querySelector('button[type="submit"]').textContent =
                 "Add Expense";
-              await initialize();
+              await refreshCurrentDayExpenses();
             } else {
               const error = await response.json();
               messageDiv.textContent = `Error: ${
