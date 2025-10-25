@@ -5,7 +5,7 @@
 <h1 align="center">ExpenseOwl</h1><br>
 
 <p align="center">
-<a href="https://github.com/tanq16/expenseowl/actions/workflows/release.yml"><img src="https://github.com/tanq16/expenseowl/actions/workflows/release.yml/badge.svg" alt="Release"></a>&nbsp;<a href="https://github.com/Tanq16/expenseowl/releases"><img alt="GitHub Release" src="https://img.shields.io/github/v/release/tanq16/expenseowl"></a>&nbsp;<a href="https://hub.docker.com/r/tanq16/expenseowl"><img alt="Docker Pulls" src="https://img.shields.io/docker/pulls/tanq16/expenseowl"></a>
+<a href="https://github.com/DhrumanGupta/expenseowl/actions/workflows/release.yml"><img src="https://github.com/DhrumanGupta/expenseowl/actions/workflows/release.yml/badge.svg" alt="Release"></a>&nbsp;<a href="https://github.com/DhrumanGupta/expenseowl/releases"><img alt="GitHub Release" src="https://img.shields.io/github/v/release/DhrumanGupta/expenseowl"></a>&nbsp;<a href="https://hub.docker.com/r/berlm/expenseowl"><img alt="Docker Pulls" src="https://img.shields.io/docker/pulls/berlm/expenseowl"></a>
 </p>
 
 <p align="center">
@@ -22,9 +22,9 @@
 
 # Why Create This?
 
-There are a ton of amazing projects for expense tracking across GitHub ([Actual](https://github.com/actualbudget/actual), [Firefly III](https://github.com/firefly-iii/firefly-iii), etc.). They're all incredible! I just don't find them *fast* and *simple*. They offer too many features I never use (like accounts or complex budgeting). *Don't get me wrong!* They're amazing when complexity is needed, but I wanted something ***dead simple*** that gives me a quick monthly look at my expenses. NOTHING else!
+There are a ton of amazing projects for expense tracking across GitHub ([Actual](https://github.com/actualbudget/actual), [Firefly III](https://github.com/firefly-iii/firefly-iii), etc.). They're all incredible! I just don't find them _fast_ and _simple_. They offer too many features I never use (like accounts or complex budgeting). _Don't get me wrong!_ They're amazing when complexity is needed, but I wanted something **_dead simple_** that gives me a quick monthly look at my expenses. NOTHING else!
 
-So, I created this project and I use it in my home lab for expenses. The primary intention is to track spending across your categories in a simplistic manner. No complications, searching, budgeting. This is *not* a budgeting app; it's for tracking.
+So, I created this project and I use it in my home lab for expenses. The primary intention is to track spending across your categories in a simplistic manner. No complications, searching, budgeting. This is _not_ a budgeting app; it's for tracking.
 
 # Features
 
@@ -43,17 +43,17 @@ So, I created this project and I use it in my home lab for expenses. The primary
 ### Visualization
 
 1. Main dashboard - category breakdown (pie chart) and cashflow indicator
-    - Click on a category to exclude it from the pie chart; click again to add it back
-    - Visualize the month's breakdown without considering some categories like Rent
-    - Cashflow shows total income, total expenses, and balance (red or green based on +ve or -ve)
+   - Click on a category to exclude it from the pie chart; click again to add it back
+   - Visualize the month's breakdown without considering some categories like Rent
+   - Cashflow shows total income, total expenses, and balance (red or green based on +ve or -ve)
 2. Table view for detailed expense listing
-    - View monthly or all expenses chronologically and delete them (hold shift to skip confirm)
-    - Use the browser to search for a name or tags if needed
-    - Tags show up if at least one transaction uses it; 
+   - View monthly or all expenses chronologically and delete them (hold shift to skip confirm)
+   - Use the browser to search for a name or tags if needed
+   - Tags show up if at least one transaction uses it;
 3. Settings page for configurations and additional features
-    - Reorder, add, or remove custom categories
-    - Select a custom currency symbol and a custom start date
-    - Exporting data as CSV and import CSV from virtually anywhere
+   - Reorder, add, or remove custom categories
+   - Select a custom currency symbol and a custom start date
+   - Exporting data as CSV and import CSV from virtually anywhere
 
 ### Progressive Web App (PWA)
 
@@ -67,20 +67,20 @@ The front end of ExpenseOwl can be installed as a Progressive Web App on desktop
 
 Dashboard Showcase:
 
-| | Desktop View | Mobile View |
-| --- | --- | --- |
-| Dark | <img src="/assets/ddark-main.png" alt="Dashboard Dark" /> | <img src="/assets/mdark-main.png" alt="Mobile Dashboard Dark" /> |
+|       | Desktop View                                                | Mobile View                                                        |
+| ----- | ----------------------------------------------------------- | ------------------------------------------------------------------ |
+| Dark  | <img src="/assets/ddark-main.png" alt="Dashboard Dark" />   | <img src="/assets/mdark-main.png" alt="Mobile Dashboard Dark" />   |
 | Light | <img src="/assets/dlight-main.png" alt="Dashboard Light" /> | <img src="/assets/mlight-main.png" alt="Mobile Dashboard Light" /> |
 
 <details>
 <summary>Expand this to see screenshots of other pages</summary>
 
-| | Desktop View | Mobile View |
-| --- | --- | --- |
-| Table Dark | <img src="/assets/ddark-table.png" alt="Dashboard Dark" /> | <img src="/assets/mdark-table.png" alt="Mobile Dashboard Dark" /> |
-| Table Light | <img src="/assets/dlight-table.png" alt="Dashboard Light" /> | <img src="/assets/mlight-table.png" alt="Mobile Dashboard Light" /> |
-| Settings Dark | <img src="/assets/ddark-settings.png" alt="Table Dark" /> | <img src="/assets/mdark-settings.png" alt="Mobile Table Dark" /> |
-| Settings Light | <img src="/assets/dlight-settings.png" alt="Table Light" /> | <img src="/assets/mlight-settings.png" alt="Mobile Table Light" /> |
+|                | Desktop View                                                 | Mobile View                                                         |
+| -------------- | ------------------------------------------------------------ | ------------------------------------------------------------------- |
+| Table Dark     | <img src="/assets/ddark-table.png" alt="Dashboard Dark" />   | <img src="/assets/mdark-table.png" alt="Mobile Dashboard Dark" />   |
+| Table Light    | <img src="/assets/dlight-table.png" alt="Dashboard Light" /> | <img src="/assets/mlight-table.png" alt="Mobile Dashboard Light" /> |
+| Settings Dark  | <img src="/assets/ddark-settings.png" alt="Table Dark" />    | <img src="/assets/mdark-settings.png" alt="Mobile Table Dark" />    |
+| Settings Light | <img src="/assets/dlight-settings.png" alt="Table Light" />  | <img src="/assets/mlight-settings.png" alt="Mobile Table Light" />  |
 
 </details>
 
@@ -93,7 +93,7 @@ docker run --rm -d \
   --name expenseowl \
   -p 8080:8080 \
   -v expenseowl:/app/data \
-  tanq16/expenseowl:main
+  berlm/expenseowl:main
 ```
 
 To use Docker compose, use this YAML definition:
@@ -101,12 +101,12 @@ To use Docker compose, use this YAML definition:
 ```yaml
 services:
   expenseowl:
-    image: tanq16/expenseowl:main
+    image: berlm/expenseowl:main
     restart: unless-stopped
     ports:
       - 5006:8080 # change 5006 to what you want to expose on
     volumes:
-      - /home/tanq/expenseowl:/app/data # change dir as needed
+      - /home/berlm/expenseowl:/app/data # change dir as needed
 ```
 
 <details>
@@ -119,7 +119,7 @@ Download the appropriate binary from the project releases. The binary automatica
 To build the binary yourself:
 
 ```bash
-git clone https://github.com/tanq16/expenseowl.git && \
+git clone https://github.com/DhrumanGupta/expenseowl.git && \
 cd expenseowl && \
 go build ./cmd/expenseowl
 ```
@@ -182,13 +182,13 @@ Ideally, you need not configure anything differently for the JSON backend. Expen
 
 For configuring Postgres, use the following environment variables:
 
-| Variable | Sample Value | Details |
-| --- | --- | --- |
-| STORAGE_TYPE | postgres | defaults to `json`, hence JSON backend is default |
-| STORAGE_URL | "localhost:5432/expenseowldb" | format - SERVER/DB - the sslmode value is set by the next variable |
-| STORAGE_SSL | require | can be one of `disable` (default), `verify-full`, `verify-ca`, or `require` |
-| STORAGE_USER | testuser | the user to authenticate with your Postgres instance |
-| STORAGE_PASS | testpassword | the password for the Postgres user |
+| Variable     | Sample Value                  | Details                                                                     |
+| ------------ | ----------------------------- | --------------------------------------------------------------------------- |
+| STORAGE_TYPE | postgres                      | defaults to `json`, hence JSON backend is default                           |
+| STORAGE_URL  | "localhost:5432/expenseowldb" | format - SERVER/DB - the sslmode value is set by the next variable          |
+| STORAGE_SSL  | require                       | can be one of `disable` (default), `verify-full`, `verify-ca`, or `require` |
+| STORAGE_USER | testuser                      | the user to authenticate with your Postgres instance                        |
+| STORAGE_PASS | testpassword                  | the password for the Postgres user                                          |
 
 The app has been tested with SSL mode for Postgres set to disable for simplicity.
 
