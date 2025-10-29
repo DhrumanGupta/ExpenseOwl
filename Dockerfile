@@ -2,6 +2,13 @@ FROM golang:alpine AS builder
 
 WORKDIR /app
 
+# Copy go mod files first
+COPY go.mod go.sum ./
+
+# Download dependencies
+RUN go mod download
+
+# Copy the rest of the source code
 COPY . .
 
 # Build the application

@@ -214,13 +214,10 @@
       }
 
       function getDayExpenses(expenses) {
-        const { start, end } = getDayBounds(currentDate);
-        return expenses
-          .filter((exp) => {
-            const expDate = new Date(exp.date);
-            return expDate >= start && expDate <= end;
-          })
-          .sort((a, b) => new Date(b.date) - new Date(a.date));
+        return (
+          expenses
+            .sort((a, b) => new Date(b.date) - new Date(a.date))
+        );
       }
 
       function updateTable() {
@@ -544,9 +541,7 @@
             name: document.getElementById("name").value,
             category: document.getElementById("category").value,
             amount: amount,
-            date: getISODateWithLocalTime(
-              currentDate.toISOString().split("T")[0]
-            ),
+            date: getLocalISODateTime(currentDate),
             tags: Array.from(selectedTags),
           };
           try {

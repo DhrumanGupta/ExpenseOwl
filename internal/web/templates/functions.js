@@ -281,15 +281,34 @@ function getISODateWithLocalTime(dateInput) {
   return localDateTime.toISOString();
 }
 
+function getLocalISODateTime(date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  const hours = String(date.getHours()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+  const seconds = String(date.getSeconds()).padStart(2, "0");
+  const milliseconds = String(date.getMilliseconds()).padStart(3, "0");
+  return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}.${milliseconds}Z`;
+}
+
 function formatDateFromUTC(utcDateString) {
   const date = new Date(utcDateString);
-  return date.toLocaleDateString("en-US", {
+  // Create a new date with the same components but treat as local time
+  const localDate = new Date(
+    date.getUTCFullYear(),
+    date.getUTCMonth(),
+    date.getUTCDate(),
+    date.getUTCHours(),
+    date.getUTCMinutes(),
+    date.getUTCSeconds()
+  );
+  return localDate.toLocaleDateString("en-US", {
     month: "short",
     day: "numeric",
     year: "numeric",
     hour: "2-digit",
     minute: "2-digit",
-    timeZoneName: "short",
   });
 }
 
@@ -304,115 +323,8 @@ function updateMonthDisplay() {
   }
 }
 
-function getMonthBounds(date) {
-  const localDate = new Date(date);
-  if (startDate === 1) {
-    const startLocal = new Date(
-      localDate.getFullYear(),
-      localDate.getMonth(),
-      1
-    );
-    const endLocal = new Date(
-      localDate.getFullYear(),
-      localDate.getMonth() + 1,
-      0,
-      23,
-      59,
-      59,
-      999
-    );
-    return {
-      start: new Date(startLocal.toISOString()),
-      end: new Date(endLocal.toISOString()),
-    };
-  }
-  let thisMonthStartDate = startDate;
-  let prevMonthStartDate = startDate;
-
-  const currentMonth = localDate.getMonth();
-  const currentYear = localDate.getFullYear();
-  const daysInCurrentMonth = new Date(
-    currentYear,
-    currentMonth + 1,
-    0
-  ).getDate();
-  thisMonthStartDate = Math.min(thisMonthStartDate, daysInCurrentMonth);
-  const prevMonth = currentMonth === 0 ? 11 : currentMonth - 1;
-  const prevYear = currentMonth === 0 ? currentYear - 1 : currentYear;
-  const daysInPrevMonth = new Date(prevYear, prevMonth + 1, 0).getDate();
-  prevMonthStartDate = Math.min(prevMonthStartDate, daysInPrevMonth);
-
-  if (localDate.getDate() < thisMonthStartDate) {
-    const startLocal = new Date(prevYear, prevMonth, prevMonthStartDate);
-    const endLocal = new Date(
-      currentYear,
-      currentMonth,
-      thisMonthStartDate - 1,
-      23,
-      59,
-      59,
-      999
-    );
-    return {
-      start: new Date(startLocal.toISOString()),
-      end: new Date(endLocal.toISOString()),
-    };
-  } else {
-    const nextMonth = currentMonth === 11 ? 0 : currentMonth + 1;
-    const nextYear = currentMonth === 11 ? currentYear + 1 : currentYear;
-    const daysInNextMonth = new Date(nextYear, nextMonth + 1, 0).getDate();
-    let nextMonthStartDate = Math.min(startDate, daysInNextMonth);
-    const startLocal = new Date(currentYear, currentMonth, thisMonthStartDate);
-    const endLocal = new Date(
-      nextYear,
-      nextMonth,
-      nextMonthStartDate - 1,
-      23,
-      59,
-      59,
-      999
-    );
-    return {
-      start: new Date(startLocal.toISOString()),
-      end: new Date(endLocal.toISOString()),
-    };
-  }
-}
-
 function getMonthExpenses(expenses) {
-  const { start, end } = getMonthBounds(currentDate);
-  return expenses
-    .filter((exp) => {
-      const expDate = new Date(exp.date);
-      return expDate >= start && expDate <= end;
-    })
-    .sort((a, b) => new Date(b.date) - new Date(a.date));
-}
-
-function getDayBounds(date) {
-  const localDate = new Date(date);
-  const startLocal = new Date(
-    localDate.getFullYear(),
-    localDate.getMonth(),
-    localDate.getDate(),
-    0,
-    0,
-    0,
-    0
-  );
-  const endLocal = new Date(
-    localDate.getFullYear(),
-    localDate.getMonth(),
-    localDate.getDate(),
-    23,
-    59,
-    59,
-    999
-  );
-  return {
-    start: new Date(startLocal.toISOString()),
-    end: new Date(endLocal.toISOString()),
-  };
+  return expenses.sort((a, b) => new Date(b.date) - new Date(a.date));
 }
 
 function escapeHTML(str) {
