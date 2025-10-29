@@ -210,6 +210,9 @@ func (h *Handler) GetExpenses(w http.ResponseWriter, r *http.Request) {
 			log.Printf("API ERROR: Failed to retrieve expenses: %v\n", err)
 			return
 		}
+		if expenses == nil {
+			expenses = []storage.Expense{}
+		}
 		writeJSON(w, http.StatusOK, expenses)
 		return
 	}
@@ -248,6 +251,9 @@ func (h *Handler) GetExpenses(w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, http.StatusInternalServerError, ErrorResponse{Error: "Failed to retrieve expenses"})
 		log.Printf("API ERROR: Failed to retrieve expenses: %v\n", err)
 		return
+	}
+	if expenses == nil {
+		expenses = []storage.Expense{}
 	}
 	writeJSON(w, http.StatusOK, expenses)
 }
@@ -353,6 +359,9 @@ func (h *Handler) GetRecurringExpenses(w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, http.StatusInternalServerError, ErrorResponse{Error: "Failed to get recurring expenses"})
 		log.Printf("API ERROR: Failed to get recurring expenses: %v\n", err)
 		return
+	}
+	if res == nil {
+		res = []storage.RecurringExpense{}
 	}
 	writeJSON(w, http.StatusOK, res)
 }
