@@ -228,6 +228,8 @@ func (h *Handler) GetExpenses(w http.ResponseWriter, r *http.Request) {
 			writeJSON(w, http.StatusBadRequest, ErrorResponse{Error: "Invalid date format. Use YYYY-MM-DD"})
 			return
 		}
+		// Convert to UTC for consistent handling (matches design intent and import-export behavior)
+		date = date.UTC()
 	} else if monthStr != "" && yearStr != "" {
 		// Parse month and year
 		month, err = strconv.Atoi(monthStr)

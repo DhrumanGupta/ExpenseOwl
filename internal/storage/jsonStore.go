@@ -351,9 +351,9 @@ func (s *jsonStore) GetExpensesByFilter(month, year int, date time.Time) ([]Expe
 
 	// Filter by specific date
 	if !date.IsZero() {
-		// Get start and end of the day
-		startOfDay := time.Date(date.Year(), date.Month(), date.Day(), 0, 0, 0, 0, date.Location())
-		endOfDay := time.Date(date.Year(), date.Month(), date.Day(), 23, 59, 59, 999999999, date.Location())
+		// Get start and end of the day in UTC (consistent with database store and design intent)
+		startOfDay := time.Date(date.Year(), date.Month(), date.Day(), 0, 0, 0, 0, time.UTC)
+		endOfDay := time.Date(date.Year(), date.Month(), date.Day(), 23, 59, 59, 0, time.UTC)
 
 		for _, exp := range data.Expenses {
 			if !exp.Date.Before(startOfDay) && !exp.Date.After(endOfDay) {

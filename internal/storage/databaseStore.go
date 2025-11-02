@@ -247,9 +247,9 @@ func (s *databaseStore) GetExpensesByFilter(month, year int, date time.Time) ([]
 
 	// Filter by specific date
 	if !date.IsZero() {
-		// Get start and end of the day
-		startOfDay := time.Date(date.Year(), date.Month(), date.Day(), 0, 0, 0, 0, date.Location())
-		endOfDay := time.Date(date.Year(), date.Month(), date.Day(), 23, 59, 59, 999999999, date.Location())
+		// Get start and end of the day in UTC (consistent with design intent and JSON store)
+		startOfDay := time.Date(date.Year(), date.Month(), date.Day(), 0, 0, 0, 0, time.UTC)
+		endOfDay := time.Date(date.Year(), date.Month(), date.Day(), 23, 59, 59, 999999999, time.UTC)
 
 		query = `SELECT id, recurring_id, name, category, amount, date, tags FROM expenses WHERE date >= $1 AND date <= $2 ORDER BY date DESC`
 		args = []interface{}{startOfDay, endOfDay}
