@@ -269,14 +269,42 @@
 
       function createPieChart(categoryData) {
         if (pieChart) pieChart.destroy();
+
+        // Calculate net amounts per category
+        const netByCategory = {};
+        const monthExpenses = allExpenses;
+        monthExpenses.forEach((exp) => {
+          const cat = exp.category;
+          if (!netByCategory[cat]) netByCategory[cat] = 0;
+          if (exp.amount < 0) {
+            netByCategory[cat] += Math.abs(exp.amount);
+          } else {
+            netByCategory[cat] -= exp.amount;
+          }
+        });
+
+        // Filter to only categories with positive net amounts and create chart data
+        const positiveNetCategories = categoryData
+          .filter((cat) => (netByCategory[cat.category] || 0) > 0)
+          .map((cat) => ({
+            category: cat.category,
+            netAmount: netByCategory[cat.category] || 0,
+          }))
+          .sort((a, b) => b.netAmount - a.netAmount);
+
+        const totalPositiveNet = positiveNetCategories.reduce(
+          (sum, cat) => sum + cat.netAmount,
+          0
+        );
+
         pieChart = new Chart("categoryPieChart", {
           type: "doughnut",
           data: {
-            labels: categoryData.map((c) => c.category),
+            labels: positiveNetCategories.map((c) => c.category),
             datasets: [
               {
-                data: categoryData.map((c) => c.total),
-                backgroundColor: categoryData.map(
+                data: positiveNetCategories.map((c) => c.netAmount),
+                backgroundColor: positiveNetCategories.map(
                   (c) => categoryColors[c.category]
                 ),
                 borderColor: "#1a1a1a",
@@ -294,16 +322,19 @@
               tooltip: {
                 callbacks: {
                   label: (context) => {
-                    const value = context.raw;
-                    const total = context.dataset.data.reduce(
-                      (sum, val) => sum + val,
-                      0
-                    );
-                    const percentage =
-                      total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+                    const category = context.label;
+                    const netAmount = netByCategory[category] || 0;
+
+                    // Show percentage for positive net amounts
+                    let percentage = "";
+                    if (totalPositiveNet > 0) {
+                      const pct = (netAmount / totalPositiveNet) * 100;
+                      percentage = ` (${pct.toFixed(1)}%)`;
+                    }
+
                     return `${context.label}: ${formatCurrency(
-                      value
-                    )} (${percentage}%)`;
+                      netAmount
+                    )}${percentage}`;
                   },
                 },
               },
@@ -327,6 +358,24 @@
           categoryData.map((cat) => [cat.category, cat])
         );
 
+        // Compute net amounts per category: expenses (abs of negatives) minus income (positives)
+        const netByCategory = {};
+        monthExpenses.forEach((exp) => {
+          const cat = exp.category;
+          if (!netByCategory[cat]) netByCategory[cat] = 0;
+          if (exp.amount < 0) {
+            netByCategory[cat] += Math.abs(exp.amount);
+          } else {
+            netByCategory[cat] -= exp.amount;
+          }
+        });
+
+        // Calculate total of only positive net amounts for percentage basis
+        const totalPositiveNet = currentMonthCategories.reduce((sum, cat) => {
+          const net = netByCategory[cat] || 0;
+          return sum + (net > 0 ? net : 0);
+        }, 0);
+
         currentMonthCategories
           .sort((a, b) => {
             const dataA = categoryMap.get(a);
@@ -342,13 +391,14 @@
               disabledCategories.has(category) ? " disabled" : ""
             }`;
             const color = categoryColors[category];
-            const categoryDataItem = categoryMap.get(category);
-            const percentage = categoryDataItem
-              ? ` (${categoryDataItem.percentage.toFixed(1)}%)`
-              : "";
-            const amount = categoryDataItem
-              ? formatCurrency(categoryDataItem.total)
-              : "";
+            const netAmount = netByCategory[category] || 0;
+            // Only show percentage for positive net amounts
+            let percentage = "";
+            if (netAmount > 0 && totalPositiveNet > 0) {
+              const pct = (netAmount / totalPositiveNet) * 100;
+              percentage = ` (${pct.toFixed(1)}%)`;
+            }
+            const amount = formatCurrency(netAmount);
             item.innerHTML = `
                     <div class="color-box" style="background-color: ${color}"></div>
                     <div class="legend-text">
@@ -360,18 +410,21 @@
             legendContainer.appendChild(item);
           });
 
-        const activeTotalExpenses = monthExpenses
-          .filter(
-            (exp) => exp.amount < 0 && !disabledCategories.has(exp.category)
-          )
-          .reduce((sum, exp) => sum + Math.abs(exp.amount), 0);
+        // Compute net total for active (non-disabled) categories only
+        const activeCategories = currentMonthCategories.filter(
+          (cat) => !disabledCategories.has(cat)
+        );
+        const activeNetTotal = activeCategories.reduce(
+          (sum, cat) => sum + (netByCategory[cat] || 0),
+          0
+        );
 
         const totalsHtml = `
                 <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border);">
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <span>Total:</span>
                         <span class="amount">
-                            ${formatCurrency(activeTotalExpenses)}
+                            ${formatCurrency(activeNetTotal)}
                         </span>
                     </div>
                 </div>
